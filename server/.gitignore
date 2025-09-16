@@ -149,3 +149,20 @@ public/uploads/
 !tsconfig.json
 !*.example
 !.gitkeep
+
+# ===============================
+# Важные папки с кодом - ДОЛЖНЫ отслеживаться
+# ===============================
+
+!src/
+!src/**/*
+!src/adapters/
+!src/adapters/**/*
+!src/application/
+!src/application/**/*
+!src/domain/
+!src/domain/**/*
+!src/infrastructure/
+!src/infrastructure/**/*
+!src/lib/
+!src/lib/**/*
