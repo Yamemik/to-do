@@ -1,5 +1,6 @@
 import { AuthService, AuthPayload } from "../domain/auth.model";
 
+
 export class VerifyToken {
   constructor(private authService: AuthService) {}
 

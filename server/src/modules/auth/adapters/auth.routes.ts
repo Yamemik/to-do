@@ -1,8 +1,8 @@
 import { FastifyInstance } from "fastify";
 import { UserRepoPrisma } from "../../user/adapters/user.repository";
-import { AuthServiceJwt } from "../application/authJwt.service";
+import { AuthServiceJwt } from "../application/auth-jwt.service";
 import { Login } from "../application/login.service";
-import { VerifyToken } from "../application/verifyToken";
+import { VerifyToken } from "../application/verify-token";
 
 
 export default async function authRoutes(app: FastifyInstance) {

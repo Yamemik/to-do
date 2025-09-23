@@ -1,12 +1,14 @@
 import { FastifyInstance } from "fastify";
 import { UserRepoPrisma } from "./user.repository";
 import { CreateUser } from "../application/create-user.service";
+import { authGuard } from "../../auth/adapters/auth-guard"; // ✅ подключаем guard
 
 
 export default async function userRoutes(app: FastifyInstance) {
   const repo = new UserRepoPrisma();
   const createUser = new CreateUser(repo);
 
+  // 🚀 Регистрация нового пользователя (доступно всем)
   app.post("/", async (req, reply) => {
     const body = req.body as { name: string; email: string; password: string };
     try {
@@ -19,5 +21,11 @@ export default async function userRoutes(app: FastifyInstance) {
     } catch (err: any) {
       return reply.status(400).send({ error: err.message });
     }
+  });
+
+  // 🔒 Получение текущего юзера (только с JWT)
+  app.get("/me", { preHandler: authGuard }, async (req, reply) => {
+    const user = (req as any).user; // 👈 authGuard кладёт сюда payload
+    return reply.send({ user });
   });
 }
