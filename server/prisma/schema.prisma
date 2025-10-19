@@ -8,7 +8,7 @@ generator client {
 }
 
 model User {
-  id       String  @id @default(uuid())
+  id       Int     @id @default(autoincrement()) // 🔹 число + автоинкремент
   name     String
   email    String  @unique
   password String
@@ -16,8 +16,8 @@ model User {
 }
 
 model Todo {
-  id        String   @id @default(uuid())
-  userId    String
+  id        Int      @id @default(autoincrement()) // 🔹 число + автоинкремент
+  userId    Int
   title     String
   completed Boolean  @default(false)
   createdAt DateTime @default(now())

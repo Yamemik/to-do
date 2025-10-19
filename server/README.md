@@ -37,6 +37,7 @@ pnpm i
 3. **Генерация Prisma Client**
 ```bash
 npx prisma generate
+pnpm prisma migrate dev --name change-id-to-int
 ```
 
 

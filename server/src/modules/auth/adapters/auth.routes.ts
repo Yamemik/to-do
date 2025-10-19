@@ -1,5 +1,5 @@
 import { FastifyInstance } from "fastify";
-import { UserRepoPrisma } from "../../user/adapters/user.repository";
+import { UserRepoPrisma } from "../../user/user.repository";
 import { AuthServiceJwt } from "../application/auth-jwt.service";
 import { Login } from "../application/login.service";
 import { VerifyToken } from "../application/verify-token";
