@@ -1,36 +1,42 @@
 import { FastifyInstance } from "fastify";
 import { UserRepoPrisma } from "./user.repository";
 import { UserService } from "./user.service";
-import { authGuard } from "../auth/adapters/auth-guard";
 
 
 export default async function userRoutes(app: FastifyInstance) {
   const repo = new UserRepoPrisma();
-  const createUser = new UserService(repo);
+  const userService = new UserService(repo);
 
-  // 🚀 Регистрация нового пользователя (доступно всем)
-  app.post("/", async (req, reply) => {
-    const body = req.body as { name: string; email: string; password: string };
+  // all
+  app.get("/", async (req, reply) => {
     try {
-      const user = await createUser.create(body);
-      return reply.status(201).send({
-        id: user.id,
-        name: user.name,
-        email: user.email,
+      const users = await userService.getAll();
+      return reply.send({
+        success: true,
+        data: users
       });
-    } catch (err: any) {
-      return reply.status(400).send({ error: err.message });
+    } catch (error: any) {
+      return reply.status(404).send({
+        success: false,
+        error: error.message
+      });
     }
   });
 
-  // 🔒 Получение текущего юзера (только с JWT)
-  app.get("/me", { preHandler: authGuard }, async (req, reply) => {
-    const user = (req as any).user; // 👈 authGuard кладёт сюда payload
-    return reply.send({ user });
-  });
+  app.get("/:id", async (req, reply) => {
+    try {
+      const { id } = req.params as { id: string };
+      const user = await userService.getById(Number(id));
 
-  // all
-  app.get("/all", async (req,reply)=>{
-    return  
+      return reply.send({
+        success: true,
+        data: user
+      });
+    } catch (error: any) {
+      return reply.status(404).send({
+        success: false,
+        error: error.message
+      });
+    }
   });
 }

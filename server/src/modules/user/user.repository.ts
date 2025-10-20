@@ -1,5 +1,5 @@
 import { PrismaClient } from "@prisma/client";
-import { User, UserRepository } from "./user.model";
+import { User, UserUpdate, UserRepository } from "./user.model";
 
 
 const prisma = new PrismaClient();
@@ -17,19 +17,19 @@ export class UserRepoPrisma implements UserRepository {
     return prisma.user.findUnique({ where: { id } });
   }
 
-  async findAll(): Promise<User[] | null> {
+  async findAll(): Promise<User[]> {
     return prisma.user.findMany();
   }
 
- async update(id: number, data: Partial<User>): Promise<User | null> {
-      return await prisma.user.update({
-        where: { id },
-        data,
-        select: {
-          id: true,
-          name: true,
-          email: true,
-        },
-      });
-    }
+  async update(id: number, data: Partial<UserUpdate>): Promise<UserUpdate | null> {
+    return await prisma.user.update({
+      where: { id },
+      data,
+      select: {
+        id: true,
+        name: true,
+        email: true,
+      },
+    });
+  }
 }
