@@ -9,6 +9,7 @@ generator client {
 
 model User {
   id       Int     @id @default(autoincrement()) // 🔹 число + автоинкремент
+  googleId String  @
   name     String
   email    String  @unique
   password String

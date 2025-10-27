@@ -10,7 +10,7 @@ export default async function userRoutes(app: FastifyInstance) {
   // all
   app.get("/", async (req, reply) => {
     try {
-      const users = await userService.getAll();
+      const users = await userService.findAll();
       return reply.send({
         success: true,
         data: users
@@ -26,7 +26,7 @@ export default async function userRoutes(app: FastifyInstance) {
   app.get("/:id", async (req, reply) => {
     try {
       const { id } = req.params as { id: string };
-      const user = await userService.getById(Number(id));
+      const user = await userService.findById(Number(id));
 
       return reply.send({
         success: true,

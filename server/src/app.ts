@@ -1,6 +1,6 @@
 import Fastify from "fastify";
 import userRoutes from "./modules/user/user.routes";
-import authRoutes from "./modules/auth/adapters/auth.routes";
+import authRoutes from "./modules/auth/auth.routes";
 import todoRoutes from "./modules/todo/adapters/todo.routes";
 
 

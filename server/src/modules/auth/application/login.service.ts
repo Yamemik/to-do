@@ -1,5 +1,5 @@
 import { UserRepository } from "../../user/user.model";
-import { AuthService } from "../domain/auth.model";
+import { AuthService } from "../auth.model";
 import bcrypt from "bcrypt";
 
 

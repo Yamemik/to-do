@@ -1,13 +1,13 @@
 import { FastifyInstance } from "fastify";
-import { UserRepoPrisma } from "../../user/user.repository";
-import { AuthServiceJwt } from "../application/auth-jwt.service";
-import { Login } from "../application/login.service";
-import { VerifyToken } from "../application/verify-token";
+import { UserRepoPrisma } from "../user/user.repository";
+import { JWTService } from "./application/jwt.service";
+import { Login } from "./application/login.service";
+import { VerifyToken } from "./application/verify-token";
 
 
 export default async function authRoutes(app: FastifyInstance) {
   const repo = new UserRepoPrisma();
-  const authService = new AuthServiceJwt();
+  const authService = new JWTService();
   const login = new Login(repo, authService);
   const verifyToken = new VerifyToken(authService);
 

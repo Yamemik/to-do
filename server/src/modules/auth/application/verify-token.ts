@@ -1,4 +1,4 @@
-import { AuthService, AuthPayload } from "../domain/auth.model";
+import { AuthService, AuthPayload } from "../auth.model";
 
 
 export class VerifyToken {

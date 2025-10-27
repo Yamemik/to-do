@@ -1,10 +1,10 @@
 import jwt from "jsonwebtoken";
-import { AuthService, AuthPayload } from "../domain/auth.model";
+import { AuthService, AuthPayload } from "../auth.model";
 
 
 const SECRET = process.env.JWT_SECRET || "supersecret";
 
-export class AuthServiceJwt implements AuthService {
+export class JWTService implements AuthService {
   sign(payload: AuthPayload): string {
     return jwt.sign(payload, SECRET, { expiresIn: "1h" });
   }
