@@ -8,8 +8,8 @@ generator client {
 }
 
 model User {
-  id       Int     @id @default(autoincrement()) // 🔹 число + автоинкремент
-  googleId String  @
+  id       Int     @id @default(autoincrement())
+  googleId String? 
   name     String
   email    String  @unique
   password String
@@ -17,7 +17,7 @@ model User {
 }
 
 model Todo {
-  id        Int      @id @default(autoincrement()) // 🔹 число + автоинкремент
+  id        Int      @id @default(autoincrement())
   userId    Int
   title     String
   completed Boolean  @default(false)

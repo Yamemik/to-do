@@ -1,37 +1,52 @@
 import { FastifyInstance } from "fastify";
+import fastifyOauth2 from "@fastify/oauth2";
 import { UserRepoPrisma } from "../user/user.repository";
 import { JWTService } from "./application/jwt.service";
-import { Login } from "./application/login.service";
-import { VerifyToken } from "./application/verify-token";
 
 
 export default async function authRoutes(app: FastifyInstance) {
   const repo = new UserRepoPrisma();
-  const authService = new JWTService();
-  const login = new Login(repo, authService);
-  const verifyToken = new VerifyToken(authService);
+  const jwtService = new JWTService();
 
-  app.post("/login", async (req, reply) => {
-    const body = req.body as { email: string; password: string };
-    try {
-      const result = await login.execute(body);
-      return reply.send(result);
-    } catch (err: any) {
-      return reply.status(401).send({ error: err.message });
-    }
+  // 🔹 Регистрируем Google OAuth
+  app.register(fastifyOauth2, {
+    name: "googleOAuth2",
+    scope: ["profile", "email"],
+    credentials: {
+      client: {
+        id: process.env.GOOGLE_CLIENT_ID!,
+        secret: process.env.GOOGLE_CLIENT_SECRET!,
+      },
+      auth: fastifyOauth2.GOOGLE_CONFIGURATION,
+    },
+    startRedirectPath: "/auth/google",
+    callbackUri: process.env.GOOGLE_CALLBACK_URL!, // 👈 обязательно!
   });
 
-  app.get("/me", async (req, reply) => {
-    try {
-      const auth = req.headers.authorization;
-      if (!auth) throw new Error("Missing token");
+  // 🔹 Callback от Google
+  app.get("/auth/google/callback", async function (req, reply) {
+    const tokenResponse = await app.googleOAuth2.getAccessTokenFromAuthorizationCodeFlow(req);
 
-      const token = auth.replace("Bearer ", "");
-      const payload = verifyToken.execute(token);
+    // Получаем данные пользователя из Google
+    const userInfoResponse = await fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
+      headers: { Authorization: `Bearer ${tokenResponse.token.access_token}` },
+    });
+    const profile = await userInfoResponse.json();
 
-      return reply.send(payload);
-    } catch (err: any) {
-      return reply.status(401).send({ error: err.message });
+    // Проверяем — есть ли пользователь
+    let user = await repo.findByEmail(profile.email);
+    if (!user) {
+      user = await repo.create({
+        name: profile.name,
+        email: profile.email,
+        password: "", // не нужен для OAuth
+      });
     }
+
+    // Создаём JWT
+    const token = jwtService.sign({ userId: user.id, email: user.email });
+
+    // Отправляем фронту
+    return reply.send({ token });
   });
 }

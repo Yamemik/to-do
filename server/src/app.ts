@@ -1,7 +1,9 @@
 import Fastify from "fastify";
+import passport from 'passport';
+
 import userRoutes from "./modules/user/user.routes";
 import authRoutes from "./modules/auth/auth.routes";
-import todoRoutes from "./modules/todo/adapters/todo.routes";
+import todoRoutes from "./modules/todo/todo.routes";
 
 
 export async function buildApp() {

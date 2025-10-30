@@ -1,10 +1,10 @@
 import { FastifyInstance } from "fastify";
-import { authGuard } from "../../auth/adapters/auth-guard";
+import { authGuard } from "../auth/auth-guard";
 import { TodoRepoPrisma } from "./todo.repository";
-import { CreateTodo } from "../application/create-todo.service";
-import { GetTodos } from "../application/get-todo.service";
-import { UpdateTodo } from "../application/update-todo.service";
-import { DeleteTodo } from "../application/delete-todo.service";
+import { CreateTodo } from "./application/create-todo.service";
+import { GetTodos } from "./application/get-todo.service";
+import { UpdateTodo } from "./application/update-todo.service";
+import { DeleteTodo } from "./application/delete-todo.service";
 
 
 export default async function todoRoutes(app: FastifyInstance) {

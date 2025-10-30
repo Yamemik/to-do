@@ -1,4 +1,4 @@
-import { TodoRepository } from "../domain/todo.model";
+import { TodoRepository } from "../todo.model";
 
 
 export class UpdateTodo {

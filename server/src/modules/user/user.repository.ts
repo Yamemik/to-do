@@ -33,7 +33,7 @@ export class UserRepoPrisma implements UserRepository {
     });
   }
 
-    async findByGoogleId(googleId: string): Promise<User | null> {
+  async findByGoogleId(googleId: string): Promise<User | null> {
     return await prisma.user.findFirst({
       where: { googleId }
     });

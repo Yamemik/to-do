@@ -1,5 +1,5 @@
 import { PrismaClient, Todo } from "@prisma/client";
-import { TodoRepository } from "../domain/todo.model";
+import { TodoRepository } from "./todo.model";
 
 
 const prisma = new PrismaClient();

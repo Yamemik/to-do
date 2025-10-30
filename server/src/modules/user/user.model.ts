@@ -21,6 +21,6 @@ export interface UserRepository {
   findByEmail(email: string): Promise<User | null>;
   findById(id: number): Promise<User | null>;
   findByGoogleId(googleId: string): Promise<User | null>;
-  update(id: number, data: Partial<UserUpdate>): Promise<UserUpdate>;
+  update(id: number, data: Partial<UserUpdate>): Promise<UserUpdate | null>;
   findAll(): Promise<User[]>;
 }

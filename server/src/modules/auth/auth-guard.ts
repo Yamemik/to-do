@@ -1,24 +1,29 @@
-import { FastifyRequest, FastifyReply } from "fastify";
-import { AuthServiceJwt } from "../application/auth-jwt.service";
-import { VerifyToken } from "../application/verify-token";
+import { FastifyReply, FastifyRequest } from "fastify";
+import { JWTService } from "./application/jwt.service";
 
 
-const authService = new AuthServiceJwt();
-const verifyToken = new VerifyToken(authService);
+const jwtService = new JWTService();
 
-export async function authGuard(req: FastifyRequest, reply: FastifyReply) {
+export async function authGuard(
+  request: FastifyRequest,
+  reply: FastifyReply
+) {
   try {
-    const auth = req.headers.authorization;
-    if (!auth) {
-      return reply.status(401).send({ error: "Missing token" });
+    const authHeader = request.headers.authorization;
+    if (!authHeader) {
+      return reply.status(401).send({ error: "Missing Authorization header" });
     }
 
-    const token = auth.replace("Bearer ", "");
-    const payload = verifyToken.execute(token);
+    const token = authHeader.replace("Bearer ", "");
+    const payload = jwtService.verify(token);
 
-    // 👇 сохраняем payload в request, чтобы использовать в хэндлерах
-    (req as any).user = payload;
-  } catch (err: any) {
-    return reply.status(401).send({ error: err.message });
+    if (!payload) {
+      return reply.status(401).send({ error: "Invalid token" });
+    }
+
+    // Добавляем данные пользователя в запрос (для доступа в хендлерах)
+    (request as any).user = payload;
+  } catch (err) {
+    return reply.status(401).send({ error: "Unauthorized" });
   }
 }
