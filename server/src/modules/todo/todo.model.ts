@@ -1,15 +1,16 @@
 import { Todo as PrismaTodo } from "@prisma/client";
 
+
 export type Todo = PrismaTodo;
 
 export interface TodoRepository {
   create(todo: Omit<Todo, "id" | "createdAt" | "updatedAt">): Promise<Todo>;
-  findAllByUser(userId: string): Promise<Todo[]>;
-  findById(id: string, userId: string): Promise<Todo | null>;
+  findAllByUser(userId: number): Promise<Todo[]>;
+  findById(id: number, userId: number): Promise<Todo | null>;
   update(
-    id: string,
-    userId: string,
+    id: number,
+    userId: number,
     data: Partial<Omit<Todo, "id" | "userId">>
   ): Promise<Todo | null>;
-  delete(id: string, userId: string): Promise<boolean>;
+  delete(id: number, userId: number): Promise<boolean>;
 }

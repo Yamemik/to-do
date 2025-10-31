@@ -3,8 +3,7 @@ export interface User {
   name: string;
   email: string;
   password: string;
-  googleId?: string;
-  //avatar?: string;
+  googleId?: string | null;
   createdAt?: Date;
   updatedAt?: Date;
 }

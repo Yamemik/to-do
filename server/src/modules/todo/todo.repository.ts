@@ -11,22 +11,22 @@ export class TodoRepoPrisma implements TodoRepository {
     return prisma.todo.create({ data: todo });
   }
 
-  async findAllByUser(userId: string): Promise<Todo[]> {
+  async findAllByUser(userId: number): Promise<Todo[]> {
     return prisma.todo.findMany({
       where: { userId },
       orderBy: { createdAt: "desc" },
     });
   }
 
-  async findById(id: string, userId: string): Promise<Todo | null> {
+  async findById(id: number, userId: number): Promise<Todo | null> {
     return prisma.todo.findFirst({
       where: { id, userId },
     });
   }
 
   async update(
-    id: string,
-    userId: string,
+    id: number,
+    userId: number,
     data: Partial<Omit<Todo, "id" | "userId">>
   ): Promise<Todo | null> {
     const result = await prisma.todo.updateMany({
@@ -39,7 +39,7 @@ export class TodoRepoPrisma implements TodoRepository {
     return prisma.todo.findFirst({ where: { id, userId } });
   }
 
-  async delete(id: string, userId: string): Promise<boolean> {
+  async delete(id: number, userId: number): Promise<boolean> {
     const result = await prisma.todo.deleteMany({
       where: { id, userId },
     });
