@@ -1,52 +1,54 @@
 import { FastifyInstance } from "fastify";
-import fastifyOauth2 from "@fastify/oauth2";
-import { UserRepoPrisma } from "../user/user.repository";
-import { JWTService } from "./application/jwt.service";
+import { GoogleAuthService } from "./application/google-auth.service";
 
 
 export default async function authRoutes(app: FastifyInstance) {
-  const repo = new UserRepoPrisma();
-  const jwtService = new JWTService();
+  const googleAuthService = new GoogleAuthService();
 
-  // 🔹 Регистрируем Google OAuth
-  app.register(fastifyOauth2, {
-    name: "googleOAuth2",
-    scope: ["profile", "email"],
-    credentials: {
-      client: {
-        id: process.env.GOOGLE_CLIENT_ID!,
-        secret: process.env.GOOGLE_CLIENT_SECRET!,
-      },
-      auth: fastifyOauth2.GOOGLE_CONFIGURATION,
-    },
-    startRedirectPath: "/auth/google",
-    callbackUri: process.env.GOOGLE_CALLBACK_URL!, // 👈 обязательно!
+  // 🔹 Вход через Google с фронтенда (id_token)
+  // Тело запроса: { idToken: string }
+  app.post("/auth/google", async (req, reply) => {
+    try {
+      const { idToken } = req.body as { idToken: string };
+      if (!idToken) return reply.status(400).send({ error: "Missing idToken" });
+
+      const result = await googleAuthService.loginWithIdToken(idToken);
+
+      return reply.send(result);
+    } catch (err: any) {
+      return reply.status(401).send({ error: err.message || "Unauthorized" });
+    }
   });
 
-  // 🔹 Callback от Google
-  app.get("/auth/google/callback", async function (req, reply) {
-    const tokenResponse = await app.googleOAuth2.getAccessTokenFromAuthorizationCodeFlow(req);
+  // 🔹 Логин через email/password (опционально)
+  // Тело запроса: { email: string, password: string }
+  app.post("/auth/login", async (req, reply) => {
+    try {
+      const { email, password } = req.body as { email: string; password: string };
+      if (!email || !password) return reply.status(400).send({ error: "Missing credentials" });
 
-    // Получаем данные пользователя из Google
-    const userInfoResponse = await fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
-      headers: { Authorization: `Bearer ${tokenResponse.token.access_token}` },
-    });
-    const profile = await userInfoResponse.json();
+      const authService = new (await import("./auth.service")).AuthService();
+      const result = await authService.login(email, password);
 
-    // Проверяем — есть ли пользователь
-    let user = await repo.findByEmail(profile.email);
-    if (!user) {
-      user = await repo.create({
-        name: profile.name,
-        email: profile.email,
-        password: "", // не нужен для OAuth
-      });
+      return reply.send(result);
+    } catch (err: any) {
+      return reply.status(401).send({ error: err.message || "Unauthorized" });
     }
+  });
 
-    // Создаём JWT
-    const token = jwtService.sign({ userId: user.id, email: user.email });
+  // 🔹 Получение данных текущего пользователя по JWT
+  app.get("/auth/me", async (req, reply) => {
+    try {
+      const authHeader = req.headers.authorization;
+      if (!authHeader) return reply.status(401).send({ error: "Missing Authorization header" });
 
-    // Отправляем фронту
-    return reply.send({ token });
+      const token = authHeader.replace("Bearer ", "");
+      const authService = new (await import("./auth.service")).AuthService();
+      const payload = authService.me(token);
+
+      return reply.send(payload);
+    } catch (err: any) {
+      return reply.status(401).send({ error: err.message || "Unauthorized" });
+    }
   });
 }

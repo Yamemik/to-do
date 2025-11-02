@@ -12,6 +12,9 @@ export class AuthService {
     this.jwt = new JWTService();
   }
 
+  /**
+   * Авторизация по email + password
+   */
   async login(email: string, password: string) {
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user) throw new Error("User not found");
@@ -19,14 +22,42 @@ export class AuthService {
     const valid = await bcrypt.compare(password, user.password);
     if (!valid) throw new Error("Invalid credentials");
 
-    const token = this.jwt.sign({ userId: user.id, email: user.email });
+    const token = await this.jwt.sign({ userId: user.id, email: user.email });
 
-    return { token, user: { id: user.id, name: user.name, email: user.email } };
+    return {
+      token,
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+      },
+    };
   }
 
-  me(token: string) {
-    const payload = this.jwt.verify(token);
+  /**
+   * Получение текущего пользователя по токену
+   */
+  async me(authHeader: string) {
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      throw new Error("Missing or invalid Authorization header");
+    }
+
+    const token = authHeader.replace("Bearer ", "").trim();
+    const payload = await this.jwt.verify(token);
+
     if (!payload) throw new Error("Invalid token");
-    return payload;
+
+    // Находим пользователя по ID
+    const user = await prisma.user.findUnique({
+      where: { id: payload.userId },
+    });
+
+    if (!user) throw new Error("User not found");
+
+    return {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+    };
   }
 }

@@ -14,7 +14,7 @@ export class GoogleAuthService {
     this.jwt = new JWTService();
   }
 
-  async verifyAndLogin(idToken: string) {
+  async loginWithIdToken(idToken: string) {
     const ticket = await this.client.verifyIdToken({
       idToken,
       audience: process.env.GOOGLE_CLIENT_ID,
@@ -27,13 +27,12 @@ export class GoogleAuthService {
     if (!email) throw new Error("Google account has no email");
 
     let user = await prisma.user.findUnique({ where: { email } });
-
     if (!user) {
       user = await prisma.user.create({
         data: {
           name: name ?? "Google User",
           email,
-          password: "",
+          password: "", // для OAuth не нужен
         },
       });
     }

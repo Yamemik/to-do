@@ -1,7 +1,8 @@
 import jwt from "jsonwebtoken";
-import { AuthService, AuthPayload } from "../auth.types";
+import { IAuthTokenService, AuthPayload } from "../auth.types";
 
-export class JWTService implements AuthService {
+
+export class JWTService implements IAuthTokenService {
   private readonly secret: string;
 
   constructor() {

@@ -4,25 +4,23 @@ import { JWTService } from "./application/jwt.service";
 
 const jwtService = new JWTService();
 
-export async function authGuard(
-  request: FastifyRequest,
-  reply: FastifyReply
-) {
+export async function authGuard(request: FastifyRequest, reply: FastifyReply) {
   try {
     const authHeader = request.headers.authorization;
     if (!authHeader) {
       return reply.status(401).send({ error: "Missing Authorization header" });
     }
 
-    const token = authHeader.replace("Bearer ", "");
-    const payload = jwtService.verify(token);
+    const token = authHeader.replace("Bearer ", "").trim();
 
+    const payload = await jwtService.verify(token);
     if (!payload) {
       return reply.status(401).send({ error: "Invalid token" });
     }
 
-    // Добавляем данные пользователя в запрос (для доступа в хендлерах)
+    // Добавляем данные пользователя в запрос
     (request as any).user = payload;
+    return; // важно — не продолжаем ответ, просто выходим
   } catch (err) {
     return reply.status(401).send({ error: "Unauthorized" });
   }

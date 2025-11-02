@@ -6,7 +6,10 @@ export interface AuthPayload {
   exp?: number;
 }
 
-export interface AuthService {
-  sign(payload: AuthPayload): string;
-  verify(token: string): AuthPayload | null;
+/**
+ * Контракт для JWT сервисов (подпись и проверка токена)
+ */
+export interface IAuthTokenService {
+  sign(payload: AuthPayload): string | Promise<string>;
+  verify(token: string): AuthPayload | null | Promise<AuthPayload | null>;
 }
