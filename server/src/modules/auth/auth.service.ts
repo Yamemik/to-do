@@ -12,6 +12,24 @@ export class AuthService {
     this.jwt = new JWTService();
   }
 
+  // 🔹 Регистрация
+  async register(name: string, email: string, password: string) {
+    const existing = await prisma.user.findUnique({ where: { email } });
+    if (existing) throw new Error("User with this email already exists");
+
+    const hashed = await bcrypt.hash(password, 10);
+    const user = await prisma.user.create({
+      data: { name, email, password: hashed },
+    });
+
+    const token = this.jwt.sign({ userId: user.id, email: user.email });
+
+    return {
+      user: { id: user.id, name: user.name, email: user.email },
+      token,
+    };
+  }
+    
   /**
    * Авторизация по email + password
    */
