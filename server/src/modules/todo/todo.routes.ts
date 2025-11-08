@@ -1,5 +1,5 @@
 import { FastifyInstance } from "fastify";
-import { authGuard } from "../auth/auth-guard";
+import { authMiddleware } from "../auth/auth-middleware";
 import { TodoRepoPrisma } from "./todo.repository";
 import { CreateTodo } from "./application/create-todo.service";
 import { GetTodos } from "./application/get-todo.service";
@@ -15,7 +15,7 @@ export default async function todoRoutes(app: FastifyInstance) {
   const deleteTodo = new DeleteTodo(repo);
 
   // ✅ Создание задачи
-  app.post("/", { preHandler: authGuard }, async (req, reply) => {
+  app.post("/", { preHandler: authMiddleware }, async (req, reply) => {
     const user = (req as any).user;
     const body = req.body as { title: string };
     const todo = await createTodo.execute(user.userId, body);
@@ -23,14 +23,14 @@ export default async function todoRoutes(app: FastifyInstance) {
   });
 
   // ✅ Получение всех задач юзера
-  app.get("/", { preHandler: authGuard }, async (req, reply) => {
+  app.get("/", { preHandler: authMiddleware }, async (req, reply) => {
     const user = (req as any).user;
     const todos = await getTodos.all(user.userId);
     return reply.send(todos);
   });
 
   // ✅ Получение одной задачи
-  app.get("/:id", { preHandler: authGuard }, async (req, reply) => {
+  app.get("/:id", { preHandler: authMiddleware }, async (req, reply) => {
     const user = (req as any).user;
     const { id } = req.params as { id: string };
     try {
@@ -42,7 +42,7 @@ export default async function todoRoutes(app: FastifyInstance) {
   });
 
   // ✅ Обновление задачи
-  app.put("/:id", { preHandler: authGuard }, async (req, reply) => {
+  app.put("/:id", { preHandler: authMiddleware }, async (req, reply) => {
     const user = (req as any).user;
     const { id } = req.params as { id: string };
     const body = req.body as { title?: string; completed?: boolean };
@@ -55,7 +55,7 @@ export default async function todoRoutes(app: FastifyInstance) {
   });
 
   // ✅ Удаление задачи
-  app.delete("/:id", { preHandler: authGuard }, async (req, reply) => {
+  app.delete("/:id", { preHandler: authMiddleware }, async (req, reply) => {
     const user = (req as any).user;
     const { id } = req.params as { id: string };
     try {

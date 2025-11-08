@@ -12,12 +12,9 @@ export class GoogleAuthService {
   constructor(repo?: UserRepository) {
     this.client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
     this.jwt = new JWTService();
-    this.users = repo ?? new UserRepoPrisma(); // по умолчанию — реализация через Prisma
+    this.users = repo ?? new UserRepoPrisma();
   }
 
-  /**
-   * Проверяет токен от Google и возвращает JWT + пользователя
-   */
   async verifyAndLogin(idToken: string) {
     const ticket = await this.client.verifyIdToken({
       idToken,
@@ -30,13 +27,11 @@ export class GoogleAuthService {
     const { email, name, sub: googleId, picture } = payload;
     if (!email) throw new Error("Google account has no email");
 
-    // 🔹 Проверяем — существует ли пользователь с таким googleId или email
     let user = await this.users.findByGoogleId(googleId!);
     if (!user) {
       user = await this.users.findByEmail(email);
     }
 
-    // 🔹 Если не найден — создаём
     if (!user) {
       user = await this.users.create({
         name: name ?? "Google User",
@@ -47,20 +42,13 @@ export class GoogleAuthService {
         updatedAt: new Date(),
       });
     } else if (!user.googleId) {
-      // Если пользователь уже был по email, но без googleId — обновляем
       await this.users.update(user.id, { googleId });
     }
 
-    // 🔹 Генерируем JWT
     const token = this.jwt.sign({ userId: user.id, email: user.email });
 
     return {
-      user: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        picture,
-      },
+      user: { id: user.id, name: user.name, email: user.email, picture },
       token,
     };
   }

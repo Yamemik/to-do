@@ -30,7 +30,7 @@ export class AuthService {
     };
   }
     
-  /**
+  /*
    * Авторизация по email + password
    */
   async login(email: string, password: string) {
@@ -52,7 +52,7 @@ export class AuthService {
     };
   }
 
-  /**
+  /*
    * Получение текущего пользователя по токену
    */
   async me(authHeader: string) {
